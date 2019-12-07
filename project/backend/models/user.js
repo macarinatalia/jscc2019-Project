@@ -7,7 +7,10 @@ const UserSchema = mongoose.Schema({
         required: true,
         minlength: 2
     },
-    password: String,
+    password: {
+        type: String,
+        default: '111'
+    },
     address: String,
     index: {
         type: Number,
@@ -28,7 +31,15 @@ const UserSchema = mongoose.Schema({
             maxDepth: 1
         }
     }],
-    img: String
+    img: String,
+    
+    favoriteRestaurants: [{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'Restaurant',
+        autopopulate: {
+        maxDepth: 1
+        }
+    }]
 })
 
 UserSchema.plugin(require('mongoose-autopopulate'))

@@ -36,29 +36,6 @@ router.get('/:id/json', async (req, res) => {
   })
 
 //get all visitors for restaurant
-router.get('/:id/visitors', async(req, res) => {
-    try{
-        const restaurant = await RestaurantService.find(req.params.id)
-        if (!restaurant) {
-            const er = new Error('No restaurant with id : ' + req.params.id)
-            status = 404
-            throw er
-        }
-        status = 500
-        //extract user ids
-        const userIds = []
-        restaurant.visitors.forEach(user => {
-            userIds.push(user.id)
-        });
-        const userParam = { _id : { $in : userIds}}
-        const users = await UserService.findByParameter(userParam)
-
-        res.render(__dirname + '/../views/list', { items : users })
-    } catch(err) {
-        res.status(status).send(err.message);
-    }
-   
-})
 //http://localhost:3000/restaurant/5dd1413751db4776931cd849/visitors
 
 router.get('/:id/visitors/json', async(req, res) => {
@@ -86,11 +63,6 @@ router.get('/:id/visitors/json', async(req, res) => {
 
 
 //get list of restaurants searched by postalcode
-router.get('/postal/:postalcode', async(req, res) => {
-    const restaurant = await RestaurantService.getAllRestaurantsByPostalCode(req.params.postalcode)
-    res.render(__dirname + '/../views/list', { items : restaurant })
-}) 
-
 //http://localhost:3000/restaurant/postal/10245
 
 router.get('/postal/:postalcode/json', async(req, res) => {
@@ -99,22 +71,6 @@ router.get('/postal/:postalcode/json', async(req, res) => {
 }) 
 
 //get list of reviews for restaurant
-router.get('/:id/reviews', async(req, res) => {
-    try {
-        const object = await RestaurantService.find(req.params.id)
-        if (!object) {
-            const er = new Error('No restaurant with id : ' + req.params.id)
-            status = 404
-            throw er
-        }
-        status = 500
-        const reviews = await ReviewService.getAllReviews(req.params.id, 'restaurant', RestaurantService)
-        res.render(__dirname + '/../views/review', { object : object, reviews : reviews, moment: moment  })
-    } catch (err) {
-        res.status(status).send(err.message)
-    }  
-}) 
-
 // http://localhost:3000/restaurant/5dd1958034c8327e643e011a/reviews
 
 router.get('/:id/reviews/json', async(req, res) => {
@@ -134,28 +90,6 @@ router.get('/:id/reviews/json', async(req, res) => {
 }) 
 
 //get menu for the restaurant
-router.get('/:id/menu', async(req, res) => {
-    try {
-        const restaurant = await RestaurantService.find(req.params.id)
-        if (!restaurant) {
-            const er = new Error('No restaurant with id : ' + req.params.id)
-            status = 404
-            throw er
-        }
-        if (restaurant.menu) {
-            status = 500
-            const menu = await MenuService.find(restaurant.menu._id)
-            res.render(__dirname + '/../views/menu', { menu : menu })
-        }
-        else{
-            const er = new Error('No menu for restaurant with id : ' + req.params.id)
-            status = 404
-            throw er
-        }
-    } catch (err) {
-        res.status(status).send(err.message)//"Server Error: Failed to print menu");
-    }
-})
 //http://localhost:3000/restaurant/5dd1958034c8327e643e011a/menu
 
 router.get('/:id/menu/json', async(req, res) => {
@@ -177,7 +111,7 @@ router.get('/:id/menu/json', async(req, res) => {
             throw er
         }
     } catch (err) {
-        res.status(status).send(err.message)//"Server Error: Failed to print menu");
+        res.status(status).send(err.message)
     }
 })
 

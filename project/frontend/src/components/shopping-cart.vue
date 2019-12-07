@@ -15,9 +15,11 @@
                             div.cart-food-edit-buttons
                                 button.cart-food-edit-delete(@click="deleteQuantity(item)") - 
                                 button.cart-food-edit-add(@click="addQuantity(item)") + 
-                            div.cart-food-price {{ item.price }} €
+                            div.cart-food-price {{ item.price.toFixed(2) }} €
                 div.cart-total-price Total: {{calcTotalPrice()}} €
-            
+            div(v-else)
+              <font-awesome-icon :icon="['fas', 'shopping-bag']" size="6x" style="color:grey"/>
+              div.else-text Please, add some food here and make an order
         footer.modal-footer
            button.checkout(@click="checkOut" :disabled="checkoutIsDisabled") Checkout
 
@@ -39,23 +41,17 @@ import { mapState, mapActions } from 'vuex'
             this.$emit('close');
         },
         deleteQuantity(meal){
-            this.shoppingCart.find(x => x.food._id === meal.food._id).quantity-- 
-            let q = this.shoppingCart.find(x => x.food._id === meal.food._id).quantity
-            if (q == 0) {
-                let ind = this.shoppingCart.findIndex(x => x.food._id === meal.food._id)
-                this.shoppingCart.splice(ind, 1)
-            }
+            this.$store.dispatch('deleteFromCart', meal)
         },
         addQuantity(meal){
-            let obj = this.shoppingCart.find(x => x.food._id === meal.food._id);
-            this.shoppingCart.find(x => x.food._id === meal.food._id).quantity++
+            this.$store.dispatch('addToCart', meal)
         },
         calcTotalPrice(){
             let totalPrice = 0
             this.shoppingCart.forEach(element => {
                 totalPrice += element.quantity * Number(element.price)
             });
-            return totalPrice
+            return totalPrice.toFixed(2)
         },
         checkOut(){
             console.log('CLICK')
@@ -89,7 +85,7 @@ import { mapState, mapActions } from 'vuex'
     display: flex;
     flex-direction: column;
     height: 300px;
-    width: 300px;
+    width: 400px;
     border-radius: 2px;
     overflow: visible !important;
  
@@ -182,6 +178,7 @@ import { mapState, mapActions } from 'vuex'
     background: transparent;
     height: 10px;
     line-height: 1;
+    outline: 0;   
   }
 
   
@@ -204,4 +201,12 @@ import { mapState, mapActions } from 'vuex'
     cursor:unset;
 }
 
+.cart-food-price {
+  width:70px;
+  text-align: right;
+}
+
+.else-text{
+  padding-top: 10px;
+}
 </style>

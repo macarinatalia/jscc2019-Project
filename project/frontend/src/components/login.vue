@@ -73,7 +73,7 @@ import { mapState, mapActions } from 'vuex'
     display: flex;
     flex-direction: column;
     height: 300px;
-    width: 300px;
+    width: 400px;
     border-radius: 2px;
     overflow: visible !important;
  
@@ -115,14 +115,9 @@ import { mapState, mapActions } from 'vuex'
     background: transparent;
     height: 10px;
     line-height: 1;
+    outline: 0;   
   }
 
-  .btn-green {
-    color: white;
-    background: #4AAE9B;
-    border: 1px solid #4AAE9B;
-    border-radius: 2px;
-  }
 
   .username,
   .password{

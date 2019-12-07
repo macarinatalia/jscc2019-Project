@@ -135,7 +135,13 @@ router.post('/:userId/restaurant/:restId/review', async(req, res) => {
         }
         status = 500
         const reviewFinal = await ReviewService.createReview(rest, user, review)
-        await RestaurantService.update(rest.id, {$push: {reviews: reviewFinal}})
+
+        const rating = (reviewFinal.rating === 0) ? rest.rating : ((rest.rating*rest.reviews.length + review.rating))/(rest.reviews.length + 1)
+        await RestaurantService.update(rest.id, 
+                                        {
+                                            $push: {reviews: reviewFinal}, 
+                                            $set:  {rating: rating}
+                                        })
         await UserService.update(user.id, {$push: {reviews: reviewFinal}})
         
         res.send(reviewFinal)
@@ -202,9 +208,42 @@ router.post("/:userId/order/:orderId/cancel", async (req, res) => {
 
 // axios.post('/user/5ddfc5c47a553c056aad877d/order/5ddfc5c47a553c056aad878d/cancel').then(console.log)
 
+//add restaurant to favorites
+router.post('/:userId/restaurant-add-to-fav/:restId/json', async(req, res) => {
+    const { userId, restId } = req.params;
+  
+    try {
+        let user = await UserService.find(userId);
+        const rest = await RestaurantService.find(restId);
+
+        if(!user || !rest){
+            const er = new Error('No such object')
+            status = 404
+            throw er
+        }
+        status = 500
+
+        //check if restaurant is in favorites already
+        const index = user.favoriteRestaurants.findIndex(x => x.id === restId);
+        if (index == -1){
+           await UserService.update(user.id, {$push: {favoriteRestaurants: restId}})
+        }else{
+            //delete from favorite
+            await UserService.update(user.id, {$pull: {favoriteRestaurants: restId}})
+        }
+
+        //extract user again
+        user = await UserService.find(userId);
+        
+        res.send(user);
+    } catch (err) {
+        res.status(status).send(err.message)
+    }
+})
+
 
 //update user's details
-router.post('/:id/update', async(req, res) => {
+router.post('/:id/update/json', async(req, res) => {
     const user = await UserService.update(req.params.id, req.body)
     res.send(user)
 })

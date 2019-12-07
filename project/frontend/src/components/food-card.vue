@@ -5,7 +5,7 @@ section
     div.food-name {{ food.name }} 
     div.food-ingridients
       span {{food.ingridients.join(', ')}}
-    div.food-price {{ price }} €
+    div.food-price {{ price.toFixed(2)}} €
   div.add-to-card-button-box
     button.add-to-card-button(@click="addToCart") +
   
@@ -23,7 +23,7 @@ export default {
     addToCart(){
       let foodToBuy = {food: this.food, price: this.price, quantity: 1}
       this.$store.dispatch('addToCart', foodToBuy)
-    }
+    },
   },
 }
 </script>

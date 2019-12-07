@@ -2,9 +2,15 @@
   <div id="app">
     <div id="topbar">
       <div id="user"> {{user.name}} </div>
-      <button id="loginBtn" @click="showModal">  </button>
+     
       <login v-show="isModalVisible" @close="closeModal" />
-      <button id="shoppingCartBtn" @click="showCartModal">  </button>
+      <div id="icons">
+        <font-awesome-icon id="userIcon" :icon="['fas', 'user-circle']" size="2x" @click="showModal()"/>
+        <span id="cartIcon" class="fa-layers fa-fw">
+          <font-awesome-icon :icon="['fas', 'shopping-cart']" size="2x"  @click="showCartModal()"/>
+          <span class="fa-layers-counter" v-if="cartNumber>0"> {{cartNumber}}</span>
+        </span>
+      </div>
       <shopping-cart v-show="isCartModalVisible" @close="closeCartModal" />
     </div>
     <div id="nav">
@@ -18,9 +24,12 @@
   </div>
 </template>
 
+
 <script>
+//<notification-bell :icon="'require(@/assets/images/icons/shopping-cart.svg)'" count="3"/>
 import Login from './components/login.vue';
 import ShoppingCart from './components/shopping-cart.vue';
+import NotificationBell from 'vue-notification-bell'
 import { mapState, mapActions } from 'vuex'
 
 export default {
@@ -31,10 +40,10 @@ export default {
       };
     },
   components: {
-      Login, ShoppingCart
+      Login, ShoppingCart, NotificationBell
   },
   computed: {
-      ...mapState(['user', 'username', 'isLoggedIn', 'shoppingCart'])
+      ...mapState(['user', 'username', 'isLoggedIn', 'shoppingCart', 'cartNumber'])
   },
   methods:{
     ...mapActions(['loginUser']),
@@ -92,16 +101,31 @@ export default {
 #topbar{
   align-items: center;
   display: flex;
+  background-color: aqua;
   height: 20px;
   justify-content: flex-end;
   margin: 0 auto;
   padding-top: 10px;
   
 }
+
+#icons{
+  height: 100%;
+  padding-right: 20px;
+}
+
+#userIcon,
+#cartIcon{
+  vertical-align: middle;
+  padding-right: 10px;
+  padding-top: 3px;
+}
 #user{
   background-color: transparent;
-  border: 1px black;
   text-align: right;
+  height: 20px;
+  padding-top: 10px;
+  padding-right: 10px;
 }
 #loginBtn,
 #shoppingCartBtn{
@@ -123,7 +147,7 @@ export default {
 }
 
 #shoppingCartBtn{
-  background-image: url(~@/assets/images/icons/shopping-cart.png);
+  background-image: url(~@/assets/images/icons/shopping-cart.svg);
 }
 
 #nav {
@@ -141,5 +165,19 @@ export default {
 
 #router{
   background-size: cover;
+}
+
+.fa-layers-counter {
+  zoom: 300%;
+  position: relative;
+  left: -2rem;
+  top: -1rem;
+  
+}
+
+.fa-layers{
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
 }
 </style>

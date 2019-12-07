@@ -22,7 +22,11 @@ const ReviewSchema = mongoose.Schema({
         required: true
     },
     date: Date,
-    stars: Number
+    rating: {
+        type: Number,
+        default: 0,
+        required: true
+    }
 })
 
 ReviewSchema.plugin(require('mongoose-autopopulate'))

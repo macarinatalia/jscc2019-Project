@@ -1,10 +1,9 @@
-<template>
-  <div class="home">
-    <h1>It is time to order some food</h1>
-    <h2>Find restaurants in your neighbourhood</h2>
-    <input class="inputIndex" v-model="index" placeholder="Enter index"> 
-    <button class="btnSearch" v-on:click="searchRestByIndex()">Search</button>
-  </div>
+<template lang="pug">
+  div.home
+    h1 It is time to order some food
+    h2 Find restaurants in your neighbourhood
+    input.inputIndex(v-model="index" placeholder="Enter index")
+    button.btnSearch(v-on:click="searchRestByIndex()") Search
 </template>
 
 <script>

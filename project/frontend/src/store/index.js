@@ -16,7 +16,8 @@ export default new Vuex.Store({
     foods: [],
     food: {},
     reviews: [],
-    shoppingCart: []
+    shoppingCart: [],
+    cartNumber: 0
   },
   mutations: {
     SET_RESTAURANTS(state, data) {
@@ -53,12 +54,22 @@ export default new Vuex.Store({
     SET_LOGIN_STATUS(state, data){
       state.isLoggedIn = data
     },
-    SET_ADD_TO_CART(state, data) {
-      state.shoppingCart.push(data)
+    SET_ADD_TO_CART(state) {
+      state.cartNumber++
+    },
+    SET_DELETE_FROM_CART(state) {
+      state.cartNumber--
+    },
+    SET_DELETE_FROM_CART_DECREASE_QUANTITY(state, index) {
+      state.shoppingCart[index].quantity--
     },
     SET_ADD_TO_CART_INCREASE_QUANTITY(state, index) {
       state.shoppingCart[index].quantity++
-    }
+    },
+    SET_UPDATE_USER(state, data){
+      state.user = data
+    },
+    
   },
   actions: {
     async fetchRestaurants({ commit }) {
@@ -100,10 +111,27 @@ export default new Vuex.Store({
     },
     addToCart({commit}, meal) {
       let index = this.state.shoppingCart.findIndex(x => x.food._id === meal.food._id)
-      if (index == -1)
+      if (index == -1){
+        this.state.shoppingCart.push(meal)
         commit('SET_ADD_TO_CART', meal)
+      }
       else
         commit('SET_ADD_TO_CART_INCREASE_QUANTITY', index)
+    },
+    deleteFromCart({commit}, meal) {
+      let index = this.state.shoppingCart.findIndex(x => x.food._id === meal.food._id)
+      let q = this.state.shoppingCart.find(x => x.food._id === meal.food._id).quantity
+
+      if(q== 1) {
+        this.state.shoppingCart.splice(index, 1)
+        commit('SET_DELETE_FROM_CART', meal)
+      }else{
+        commit('SET_DELETE_FROM_CART_DECREASE_QUANTITY', index)
+      }
+    },
+    async addRestaurantToFavorites({commit}, data){
+      const result = await axios.post(`http://localhost:3000/user/${data.user}/restaurant-add-to-fav/${data.rest}/json`)
+      commit('SET_UPDATE_USER', result.data)
     }
   },
   modules: {

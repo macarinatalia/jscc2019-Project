@@ -40,7 +40,11 @@ const RestaurantSchema = mongoose.Schema({
             maxDepth: 1
         }
     }],
-    img: String
+    img: String,
+    rating: {
+        type: Number,
+        default: 0
+    }
 })
 
 RestaurantSchema.plugin(require('mongoose-autopopulate'))
