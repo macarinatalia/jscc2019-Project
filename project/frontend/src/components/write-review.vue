@@ -2,21 +2,15 @@
   div.modal-backdrop
     div.modal
         header.modal-header
-            h4.header My account
+            h4.header Write a review ...
             button.closeBtn(@click="close") x
 
-        section.modal-body(v-if="isLoggedIn")
-            span {{user.name}}
-            span {{user.address}}
-            span {{user.index}}
-        section.modal-body(v-else)
-            input.username(placeholder="Name", v-model="username") 
-            input.password(placeholder="Password", v-model="password", type="password")
-        footer.modal-footer(v-if="isLoggedIn")
-            button.btnLogout(@click="logout") Log out
-        footer.modal-footer(v-else)
-            button.btnLogin(@click="login(username, password)") Log in
-            button.btnSignin(@click="signin") Sign in
+        section.modal-body
+            textarea.review(v-model="review" placeholder="Add review")
+            input.rating(placeholder="Rating from 1 to 5", v-model="rating")
+        footer.modal-footer
+            button.btnSubmit(@click="submitReview(review, rating)") Submit
+        
 
 </template>
 
@@ -24,35 +18,26 @@
 
 import { mapState, mapActions } from 'vuex'
   export default {
-    name: 'login',
+    name: 'WriteReview',
      data() {
         return {
-            username: '',
-            password: '',
+            review: '',
+            rating: ''
         }
     },
     computed: {
-      ...mapState(['user', 'isLoggedIn'])
+      ...mapState(['user', 'restaurant'])
     },
     methods: {
         close() {
             this.$emit('close');
         },
-        login(username, password) {
-            this.$store.dispatch('loginUser', {username, password})
-            //this.$emit("isLoggedIn", true)
-            //this.$emit('username', username)
-            this.username = ''
-            this.password = ''
+        submitReview(review, rating) {
+            this.$store.dispatch('writeReview', {user: this.user._id, rest: this.restaurant._id, name: review, rating: Number(rating)})
+            this.review = ''
+            this.rating = ''
             this.$emit('close')
         },
-        signin(){
-
-        },
-        logout(){
-            this.$store.dispatch('logoutUser')
-            this.$emit('close')
-        }
     },
   };
 </script>
@@ -128,37 +113,13 @@ import { mapState, mapActions } from 'vuex'
   }
 
 
-  .username,
-  .password{
+  .review,
+  .rating{
     padding: 10px;
     margin-bottom: 10px;
   }
 
-.btnSignin,
-.btnLogin{
-    text-align: center;
-    font-size: 14px;
-    background-color: orange;
-    color: #fff;
-    height: 2.5rem;
-    padding: 0 10px;
-    cursor: pointer;
-    outline: 0;
-    border: 0px;
-    width: 100%;
-}
-
-.btnLogin{
-    border-radius: 2px 0 0 2px;
-    margin-right: 1px;
-}
-
-.btnSignin {
-  border-radius: 0 2px 2px 0;
-  
-}
-
-.btnLogout{
+.btnSubmit{
     text-align: center;
     font-size: 14px;
     background-color: orange;

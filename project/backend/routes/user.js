@@ -122,7 +122,7 @@ router.post('/', async(req, res) => {
 })
 
 //make review to restaurant
-router.post('/:userId/restaurant/:restId/review', async(req, res) => {
+router.post('/:userId/restaurant/:restId/review/json', async(req, res) => {
     const { userId, restId } = req.params
     try{
         const user = await UserService.find(userId)
@@ -136,7 +136,7 @@ router.post('/:userId/restaurant/:restId/review', async(req, res) => {
         status = 500
         const reviewFinal = await ReviewService.createReview(rest, user, review)
 
-        const rating = (reviewFinal.rating === 0) ? rest.rating : ((rest.rating*rest.reviews.length + review.rating))/(rest.reviews.length + 1)
+        const rating = (rest.rating * rest.reviews.length + review.rating)/(rest.reviews.length + 1)
         await RestaurantService.update(rest.id, 
                                         {
                                             $push: {reviews: reviewFinal}, 
@@ -154,7 +154,7 @@ router.post('/:userId/restaurant/:restId/review', async(req, res) => {
 //axios.post('/user/5dd1412c51db4776931cd848/restaurant/5dd1958034c8327e643e011a/review',{name: 'cool'}).then(console.log)
 
 //user makes an order in specific restaurant
-router.post("/:userId/restaurant/:restId/order", async (req, res) => {
+router.post("/:userId/restaurant/:restId/order/json", async (req, res) => {
     const { userId, restId } = req.params;
   
     try {
@@ -167,11 +167,17 @@ router.post("/:userId/restaurant/:restId/order", async (req, res) => {
             throw er
         }
         status = 500
-        const food = await FoodService.getFoodArrayByIds(req.body.food);
-        const order = await OrderService.createNewOrder(user, rest, food);
 
-        // await RestaurantService.update(rest.id,{ $push: {orders: order, visitors: user}})
-        // await UserService.update(user.id,{ $push: {orders: order}})
+        //extract food, foodPrice, foodQuantity from req.body.shoppingcart
+        //get foodIds
+
+        const food = await FoodService.getFoodArrayByIds(req.body.shoppingcart.map(x => x.food))
+        const foodPrice = req.body.shoppingcart.map(x => x.price)
+        const foodQuantity = req.body.shoppingcart.map(x => x.quantity)
+
+        //extract orderPrice from req.body.orderPrice
+        const orderPrice = req.body.orderPrice
+        const order = await OrderService.createNewOrder(user, rest, food, foodPrice, foodQuantity, orderPrice)
         res.send(order);
     } catch (err) {
         res.status(status).send(err.message)
@@ -184,6 +190,24 @@ router.post("/:userId/restaurant/:restId/order", async (req, res) => {
 
 
 //axios.post('/user/5dd1412051db4776931cd847', {address: 'CVC'}).then(console.log)
+
+//get list of orders for usr
+router.post("/:userId/orders/json", async (req, res) => {
+    try {
+        const user = await UserService.find(req.params.userId);
+
+        if(!user){
+            const er = new Error('No such object')
+            status = 404
+            throw er
+        }
+        status = 500
+        const orders = await OrderService.getAllOrdersForUser(req.params.userId)
+        res.send(orders);
+    } catch (err) {
+        res.status(status).send(err.message)
+    }
+})
 
 //user cancel an order 
 router.post("/:userId/order/:orderId/cancel", async (req, res) => {
@@ -244,7 +268,8 @@ router.post('/:userId/restaurant-add-to-fav/:restId/json', async(req, res) => {
 
 //update user's details
 router.post('/:id/update/json', async(req, res) => {
-    const user = await UserService.update(req.params.id, req.body)
+    await UserService.update(req.params.id, req.body)
+    const user = await UserService.find(userId);
     res.send(user)
 })
 

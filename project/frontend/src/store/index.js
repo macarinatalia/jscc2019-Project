@@ -7,6 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     isLoggedIn: false,
+    isRestaurantChanged: false,
     restaurants: [],
     restaurant: {},
     index: "",
@@ -16,8 +17,11 @@ export default new Vuex.Store({
     foods: [],
     food: {},
     reviews: [],
+    review:{},
     shoppingCart: [],
-    cartNumber: 0
+    cartNumber: 0,
+    orders: [],
+    order: {}
   },
   mutations: {
     SET_RESTAURANTS(state, data) {
@@ -51,6 +55,9 @@ export default new Vuex.Store({
     SET_REVIEWS(state, data){
       state.reviews = data
     },
+    SET_WRITE_REVIEW(state, data){
+      state.review = data
+    },
     SET_LOGIN_STATUS(state, data){
       state.isLoggedIn = data
     },
@@ -59,6 +66,10 @@ export default new Vuex.Store({
     },
     SET_DELETE_FROM_CART(state) {
       state.cartNumber--
+    },
+    SET_CLEAR_SHOPPING_CART(state) {
+      state.shoppingCart = []
+      state.cartNumber = 0
     },
     SET_DELETE_FROM_CART_DECREASE_QUANTITY(state, index) {
       state.shoppingCart[index].quantity--
@@ -69,6 +80,12 @@ export default new Vuex.Store({
     SET_UPDATE_USER(state, data){
       state.user = data
     },
+    SET_ORDER(state, data){
+      state.order = data
+    },
+    SET_ORDERS(state, data){
+      state.orders = data
+    }
     
   },
   actions: {
@@ -79,6 +96,10 @@ export default new Vuex.Store({
     },
     async fetchOneRestaurant({ commit }, restId) {
       const result = await axios.get(`http://localhost:3000/restaurant/${restId}/json`)
+      if(this.state.restaurant._id != undefined && this.state.restaurant._id != restId){
+        //restaurant is changed
+        commit('SET_CLEAR_SHOPPING_CART')
+      }
       commit('SET_ONE_RESTAURANT', result.data)
     },
     async fetchRestaurantsByIndex({ commit }, index) {
@@ -94,6 +115,11 @@ export default new Vuex.Store({
       const result = await axios.post('http://localhost:3000/user/login/json', {name: user.username})
       commit('SET_USER', result.data[0])
       commit('SET_LOGIN_STATUS', true)
+    },
+    logoutUser({ commit }){
+      commit('SET_USER', [])
+      commit('SET_LOGIN_STATUS', false)
+      commit('SET_CLEAR_SHOPPING_CART')
     },
     async fetchMenuForRestaurant({ commit }, restId) {
       const menu = await axios.get(`http://localhost:3000/restaurant/${restId}/menu/json`)
@@ -122,7 +148,7 @@ export default new Vuex.Store({
       let index = this.state.shoppingCart.findIndex(x => x.food._id === meal.food._id)
       let q = this.state.shoppingCart.find(x => x.food._id === meal.food._id).quantity
 
-      if(q== 1) {
+      if(q == 1) {
         this.state.shoppingCart.splice(index, 1)
         commit('SET_DELETE_FROM_CART', meal)
       }else{
@@ -132,7 +158,38 @@ export default new Vuex.Store({
     async addRestaurantToFavorites({commit}, data){
       const result = await axios.post(`http://localhost:3000/user/${data.user}/restaurant-add-to-fav/${data.rest}/json`)
       commit('SET_UPDATE_USER', result.data)
+    },
+    async userMakesOrderInRestaurant({commit}, data){
+      const result = await axios.post(`http://localhost:3000/user/${this.state.user._id}/restaurant/${data.restaurant._id}/order/json`,
+                                      {shoppingcart: data.shoppingcart,
+                                        orderPrice: data.orderPrice})
+      commit('SET_ORDER', result.data)
+      this.state.orders.push(result.data)
+      this.state.shoppingCart = []
+      this.state.cartNumber = 0
+    },
+    async fetchUserOrders({commit}){
+      const result = await axios.post(`http://localhost:3000/user/${this.state.user._id}/orders/json`)
+      commit('SET_ORDERS', result.data)
+    },
+    async reorderOrder({commit}, orderId){
+      const result = await axios.post(`http://localhost:3000/order/${orderId}/reorder/json`)
+      commit('SET_ORDER', result.data)
+      this.state.orders.push(result.data)
+    },
+    async writeReview({commit, dispatch}, data) {
+      const result = await axios.post(`http://localhost:3000/user/${data.user}/restaurant/${data.rest}/review/json`, 
+                                        {
+                                          name: data.name,
+                                          rating: data.rating
+                                        })
+      commit('SET_WRITE_REVIEW', result.data)
+      this.state.reviews.push(result.data)
+      //update restaurant data
+      dispatch('fetchOneRestaurant', data.rest)
     }
+    
+
   },
   modules: {
   }

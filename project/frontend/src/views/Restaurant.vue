@@ -1,7 +1,7 @@
 <template lang="pug">
     div.restaurant-box
         div.restaurant-info-card-box
-            restaurant-info-card
+            restaurant-info-card(:restaurant="restaurant")
         div.menu-card-box  
             menu-card
 </template>

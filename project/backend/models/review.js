@@ -24,7 +24,9 @@ const ReviewSchema = mongoose.Schema({
     date: Date,
     rating: {
         type: Number,
-        default: 0,
+        default: 1,
+        $gt: 0,
+        $lt: 6,
         required: true
     }
 })

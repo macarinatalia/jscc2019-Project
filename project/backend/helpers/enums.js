@@ -1,7 +1,8 @@
 const OrderStatus = {
-    OPEN: 'open',
-    CLOSED: 'closed',
-    CANCELLED: 'cancelled'
+    OPEN: 'Open',
+    CLOSED: 'Closed',
+    CANCELLED: 'Cancelled',
+    DELIVERED: 'Delivered'
 }
 
 

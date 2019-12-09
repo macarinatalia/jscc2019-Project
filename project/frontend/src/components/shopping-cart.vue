@@ -21,7 +21,8 @@
               <font-awesome-icon :icon="['fas', 'shopping-bag']" size="6x" style="color:grey"/>
               div.else-text Please, add some food here and make an order
         footer.modal-footer
-           button.checkout(@click="checkOut" :disabled="checkoutIsDisabled") Checkout
+          span.login-text(v-if="!isLoggedIn && shoppingCart.length > 0") Please, login and then you can buy :)
+          button.checkout(@click="checkOut" :disabled="checkoutIsDisabled") Checkout
 
 </template>
 
@@ -31,10 +32,15 @@ import { mapState, mapActions } from 'vuex'
   export default {
     name: 'ShoppingCart',
     computed: {
-      ...mapState(['shoppingCart']),
+      ...mapState(['shoppingCart', 'restaurant', 'isLoggedIn']),
       checkoutIsDisabled: function(){
-    	    return !this.shoppingCart.length > 0;
+    	    return !this.shoppingCart.length > 0 || !this.isLoggedIn;
         }
+    },
+    data() {
+      return {
+        totalPrice: 0
+      }
     },
     methods: {
         close() {
@@ -47,14 +53,20 @@ import { mapState, mapActions } from 'vuex'
             this.$store.dispatch('addToCart', meal)
         },
         calcTotalPrice(){
-            let totalPrice = 0
+            let price = 0
             this.shoppingCart.forEach(element => {
-                totalPrice += element.quantity * Number(element.price)
+                price += element.quantity * Number(element.price)
             });
-            return totalPrice.toFixed(2)
+            this.totalPrice = price.toFixed(2)
+            return this.totalPrice
         },
         checkOut(){
-            console.log('CLICK')
+          if(this.isLoggedIn) {
+            this.$store.dispatch('userMakesOrderInRestaurant', {restaurant: this.restaurant, 
+                                                              shoppingcart: this.shoppingCart,
+                                                              orderPrice: this.totalPrice})
+            this.close()
+          }
         }
     },
   };
@@ -110,7 +122,9 @@ import { mapState, mapActions } from 'vuex'
 
   .modal-footer {
     justify-content: center;
-    height: 70px;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
   }
 
   .modal-body {
@@ -208,5 +222,10 @@ import { mapState, mapActions } from 'vuex'
 
 .else-text{
   padding-top: 10px;
+}
+
+.login-text{
+  font-size: 12px;
+  margin-bottom: 5px;
 }
 </style>

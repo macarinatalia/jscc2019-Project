@@ -5,6 +5,7 @@ import Restaurant from '../views/Restaurant.vue'
 import Restaurants from '../views/Restaurants.vue'
 import Users from '../views/Users.vue'
 import Reviews from '../views/Reviews.vue'
+import Orders from '../views/Orders.vue'
 
 Vue.use(VueRouter)
 
@@ -49,6 +50,11 @@ const routes = [
     path: '/users',
     name: 'users',
     component: Users
+  },
+  {
+    path: '/orders',
+    name: 'userOrders',
+    component: Orders
   },
 
 ]

@@ -23,11 +23,22 @@ const OrderSchema = mongoose.Schema({
             maxDepth: 1
         }
     }],
+    foodPrice: [],
+    foodQuantity: [],
     status: {
         type: String,
         enum: Object.values(Enums.OrderStatus),
         required: true,
-    }
+    },
+    date: {
+        type: Date,
+        required:true
+    },
+    orderNumber: {
+        type: Number,
+        required: true
+    },
+    orderPrice: Number
 })
 
 

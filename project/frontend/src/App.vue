@@ -3,9 +3,9 @@
     <div id="topbar">
       <div id="user"> {{user.name}} </div>
      
-      <login v-show="isModalVisible" @close="closeModal" />
+      <login v-show="isModalVisible" @close="closeLoginModal" />
       <div id="icons">
-        <font-awesome-icon id="userIcon" :icon="['fas', 'user-circle']" size="2x" @click="showModal()"/>
+        <font-awesome-icon id="userIcon" :icon="['fas', 'user-circle']" size="2x" @click="showLoginModal()"/>
         <span id="cartIcon" class="fa-layers fa-fw">
           <font-awesome-icon :icon="['fas', 'shopping-cart']" size="2x"  @click="showCartModal()"/>
           <span class="fa-layers-counter" v-if="cartNumber>0"> {{cartNumber}}</span>
@@ -15,9 +15,8 @@
     </div>
     <div id="nav">
       <router-link to="/">Home</router-link> |
-      <router-link to="/restaurants">Restaurants</router-link> |
-      <router-link to="/users">Users</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/restaurants">Restaurants</router-link> <slot v-if="isLoggedIn"> | </slot>
+      <router-link to="/orders" v-if="isLoggedIn">Orders</router-link> 
     </div>
     
     <router-view id="router"/>
@@ -26,7 +25,7 @@
 
 
 <script>
-//<notification-bell :icon="'require(@/assets/images/icons/shopping-cart.svg)'" count="3"/>
+
 import Login from './components/login.vue';
 import ShoppingCart from './components/shopping-cart.vue';
 import NotificationBell from 'vue-notification-bell'
@@ -43,14 +42,20 @@ export default {
       Login, ShoppingCart, NotificationBell
   },
   computed: {
-      ...mapState(['user', 'username', 'isLoggedIn', 'shoppingCart', 'cartNumber'])
+      ...mapState(['user', 'username', 'isLoggedIn', 'shoppingCart', 'cartNumber']),
+    
+      userOrdersUrl() {
+        debugger
+        return `/user/${this.user._id}/orders`
+      }
+
   },
   methods:{
     ...mapActions(['loginUser']),
-    showModal() {
+    showLoginModal() {
         this.isModalVisible = true;
       },
-    closeModal() {
+    closeLoginModal() {
         this.isModalVisible = false;
     },
     showCartModal() {
@@ -61,7 +66,10 @@ export default {
     },
     setAuthenticated(status) {
           this.isLoggedIn = status;
-    },    
+    },   
+    getRouteLink(){
+      return "/user/" + this.user._id + "/orders"
+    } 
   },
   mounted() {
     if(!this.isLoggedIn) {
@@ -101,7 +109,6 @@ export default {
 #topbar{
   align-items: center;
   display: flex;
-  background-color: aqua;
   height: 20px;
   justify-content: flex-end;
   margin: 0 auto;
@@ -172,7 +179,7 @@ export default {
   position: relative;
   left: -2rem;
   top: -1rem;
-  
+  background-color: orange;
 }
 
 .fa-layers{

@@ -32,7 +32,10 @@ export default {
     getRatingImgUrl(rating){
         let name = 0
         switch (true) {
-            case rating < 1.5 && rating >= 0:
+            case rating == 0:
+                name = 0
+                break
+            case rating < 1.5 && rating > 0:
                 name = 1
                 break
             case rating < 2.5 && rating >= 1.5:
@@ -52,7 +55,7 @@ export default {
                 break
         }
 
-        return require('../assets/images/icons/rating-' + name + '.svg')
+        return require('../assets/images/icons/rating-' + name + '.png')
     }
   }
 
@@ -119,11 +122,14 @@ export default {
 .rating-stars{
     height: 50px;
     width: auto;
+    transform: scale(0.25);
+    margin-left: -100px;
 }
 
 .reviews-count{
   padding-top: 15px;
   padding-left: 5px;
+  margin-left: -100px;
 }
 
 .add-to-favorite-button{

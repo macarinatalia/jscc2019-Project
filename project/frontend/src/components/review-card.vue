@@ -6,7 +6,7 @@ div.review-main-box
             div
                 div.user-name {{review.user.name}}
                 div.review-date {{formatDate(review.date)}}
-        div.review-stars {{review.stars}}
+        div.review-stars {{review.rating}}
     section.review-user
         div.review-body {{review.name}}
    

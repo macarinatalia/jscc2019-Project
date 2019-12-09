@@ -1,14 +1,13 @@
 <template lang="pug">
     div.restaurant-info-box
       div.restaurant-container
-        img.rest-image(:src="getImgUrl(restaurant.img)", alt="")
+        img.rest-image(:src="'/images/restaurant/' + restaurant.img", alt="")
         div.restaurant-details-box
             h1 {{restaurant.name}}
-            
             h4 {{restaurant.address}}, {{ restaurant.index}}
             div.reviews
-              img.rating-stars(:src="getRatingImgUrl(restaurant.rating)", alt="") 
-              router-link.a(:to="reviewsUrl") ({{restaurant.reviews.length}} Reviews)
+              img.rating-stars(:src="'/images/rating/rating-' + dynamic_image + '.png'", alt="") 
+              router-link.a(:to="reviewsUrl") ({{reviews_length}} Reviews)
         div.favorite-box 
         
               img.add-to-favorite(v-if="isLoggedIn" :src="currentFavouriteImg", v-on:click="addToFavorite()")
@@ -16,11 +15,14 @@
 
 
 <script>
+// + restaurant.rating.toFixed(0) + 
+//'/images/rating/rating-' + getRatingImgUrl() + '.png'
 import { mapState, mapActions } from 'vuex'
 export default {
   name: 'RestaurantInfoCard',
+  props: ['restaurant'],
   computed: {
-    ...mapState(['restaurant', 'isLoggedIn','user']),
+    ...mapState(['isLoggedIn','user']),
     reviewsUrl() {
       return `/restaurant/${this.restaurant._id}/reviews`
     },
@@ -34,16 +36,20 @@ export default {
       }
       return require('../assets/images/icons/' + img)
     },
-  },
-  methods: {
-    ...mapActions(['addToFavorite']),
-    getImgUrl(img) {
-      return require('../assets/images/restaurant/' + img)
-    },
-    getRatingImgUrl(rating){
-        let name = 0
-        switch (true) {
-            case rating < 1.5 && rating >= 0:
+    'dynamic_image': function() {
+      let name = 0
+      let rating = 0
+      if(this.restaurant.rating == undefined) { 
+          rating = 0 
+      }else {
+          rating = this.restaurant.rating 
+      }
+      
+      switch (true) {
+            case rating == 0:
+                name = 0
+                break
+            case rating < 1.5 && rating > 0:
                 name = 1
                 break
             case rating < 2.5 && rating >= 1.5:
@@ -59,13 +65,26 @@ export default {
                 name = 5
                 break
             default:
-                name = 1
+                name = 0
                 break
         }
 
-        return require('../assets/images/icons/rating-' + name + '.svg')
+      return name
     },
+    'reviews_length': function() {
+      let l = 0
+      if (this.restaurant.reviews == undefined){
+        l = 0
+      }else{
+        l = this.restaurant.reviews.length 
+      }
+      return l
+    }
     
+    
+  },
+  methods: {
+    ...mapActions(['addToFavorite']),
     addToFavorite(){
       if(this.isLoggedIn){
         this.$store.dispatch('addRestaurantToFavorites', {user: this.user._id, rest: this.restaurant._id})
@@ -74,7 +93,7 @@ export default {
         //imgElement.src = this.getFavouriteImg(this.user.favoriteRestaurants)
       }
     }
-  }
+  },
 
 }
 </script>
@@ -88,6 +107,7 @@ export default {
     font-size: 15px;
     padding-top: 20px;
     padding-left: 5px;
+    margin-left: -120px;
   }
 .restaurant-info-box {
   margin-bottom: 16px;
@@ -128,6 +148,8 @@ export default {
 .rating-stars{
     height: 60px;
     width: auto;
+    transform: scale(0.25);
+    margin-left: -120px;
 }
 
 .favorite-box {

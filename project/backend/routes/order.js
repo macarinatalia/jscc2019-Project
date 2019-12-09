@@ -34,6 +34,35 @@ router.post('/', async(req, res) => {
     res.send(order)
 })
 
+//reorder order
+router.post('/:id/reorder/json', async(req, res) => {
+    
+    try {
+        const order = await OrderService.find(req.params.id)
+
+        if(!order){
+            const er = new Error('No such object')
+            status = 404
+            throw er
+        }
+        status = 500
+
+        //extract food, foodPrice, foodQuantity from req.body.order
+        //get foodIds
+        const rest = order.restaurant
+        const food = order.food
+        const foodPrice = order.foodPrice
+        const foodQuantity = order.foodQuantity
+        const user = order.user
+        const orderPrice = order.orderPrice
+
+        const newOrder = await OrderService.createNewOrder(user, rest, food, foodPrice, foodQuantity, orderPrice)
+        res.send(newOrder);
+    } catch (err) {
+        res.status(status).send(err.message)
+    }
+})
+
 router.delete('/:id', async(req, res) => {
     const order = await OrderService.del(req.params.id)
     res.send(order)
