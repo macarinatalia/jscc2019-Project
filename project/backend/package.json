@@ -1,7 +1,7 @@
 {
-  "name": "homework-6",
+  "name": "project",
   "version": "1.0.0",
-  "description": "Homework #6",
+  "description": "Final project for JSCC2019",
   "main": "index.js",
   "scripts": {
     "test": "ava --watch --verbose",
