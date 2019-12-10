@@ -91,11 +91,11 @@ export default new Vuex.Store({
   actions: {
     async fetchRestaurants({ commit }) {
       commit('SET_INDEX', "")
-      const result = await axios.get('http://localhost:3000/restaurant/all/json')
+      const result = await axios.get(`${process.env.VUE_APP_API_URL}/restaurant/all/json`)
       commit('SET_RESTAURANTS', result.data)
     },
     async fetchOneRestaurant({ commit }, restId) {
-      const result = await axios.get(`http://localhost:3000/restaurant/${restId}/json`)
+      const result = await axios.get(`${process.env.VUE_APP_API_URL}/restaurant/${restId}/json`)
       if(this.state.restaurant._id != undefined && this.state.restaurant._id != restId){
         //restaurant is changed
         commit('SET_CLEAR_SHOPPING_CART')
@@ -104,15 +104,15 @@ export default new Vuex.Store({
     },
     async fetchRestaurantsByIndex({ commit }, index) {
       commit('SET_INDEX', index)
-      const result = await axios.get(`http://localhost:3000/restaurant/postal/${index}/json`)
+      const result = await axios.get(`${process.env.VUE_APP_API_URL}/restaurant/postal/${index}/json`)
       commit('SET_RESTAURANTS', result.data)
     },
     async fetchUsers({ commit }) {
-      const result = await axios.get('http://localhost:3000/user/all/json')
+      const result = await axios.get(`${process.env.VUE_APP_API_URL}/user/all/json`)
       commit('SET_USERS', result.data)
     },
     async loginUser({ commit }, user) {
-      const result = await axios.post('http://localhost:3000/user/login/json', {name: user.username})
+      const result = await axios.post(`${process.env.VUE_APP_API_URL}/user/login/json`, {name: user.username})
       commit('SET_USER', result.data[0])
       commit('SET_LOGIN_STATUS', true)
     },
@@ -122,17 +122,17 @@ export default new Vuex.Store({
       commit('SET_CLEAR_SHOPPING_CART')
     },
     async fetchMenuForRestaurant({ commit }, restId) {
-      const menu = await axios.get(`http://localhost:3000/restaurant/${restId}/menu/json`)
-      const food = await axios.get(`http://localhost:3000/menu/${menu.data._id}/food/json`)
+      const menu = await axios.get(`${process.env.VUE_APP_API_URL}/restaurant/${restId}/menu/json`)
+      const food = await axios.get(`${process.env.VUE_APP_API_URL}/menu/${menu.data._id}/food/json`)
       commit('SET_MENU', menu.data)
       commit('SET_FOODS', food.data)
     },
     async fetchOneFood({ commit }, foodId) {
-      const result = await axios.get(`http://localhost:3000/food/${foodId}/json`)
+      const result = await axios.get(`${process.env.VUE_APP_API_URL}/food/${foodId}/json`)
       commit('SET_ONE_FOOD', result.data)
     },
     async fetchReviewsForRestaurant({ commit }, restId) {
-      const result = await axios.get(`http://localhost:3000/restaurant/${restId}/reviews/json`)
+      const result = await axios.get(`${process.env.VUE_APP_API_URL}/restaurant/${restId}/reviews/json`)
       commit('SET_REVIEWS', result.data)
     },
     addToCart({commit}, meal) {
@@ -156,11 +156,11 @@ export default new Vuex.Store({
       }
     },
     async addRestaurantToFavorites({commit}, data){
-      const result = await axios.post(`http://localhost:3000/user/${data.user}/restaurant-add-to-fav/${data.rest}/json`)
+      const result = await axios.post(`${process.env.VUE_APP_API_URL}/user/${data.user}/restaurant-add-to-fav/${data.rest}/json`)
       commit('SET_UPDATE_USER', result.data)
     },
     async userMakesOrderInRestaurant({commit}, data){
-      const result = await axios.post(`http://localhost:3000/user/${this.state.user._id}/restaurant/${data.restaurant._id}/order/json`,
+      const result = await axios.post(`${process.env.VUE_APP_API_URL}/user/${this.state.user._id}/restaurant/${data.restaurant._id}/order/json`,
                                       {shoppingcart: data.shoppingcart,
                                         orderPrice: data.orderPrice})
       commit('SET_ORDER', result.data)
@@ -169,16 +169,16 @@ export default new Vuex.Store({
       this.state.cartNumber = 0
     },
     async fetchUserOrders({commit}){
-      const result = await axios.post(`http://localhost:3000/user/${this.state.user._id}/orders/json`)
+      const result = await axios.post(`${process.env.VUE_APP_API_URL}/user/${this.state.user._id}/orders/json`)
       commit('SET_ORDERS', result.data)
     },
     async reorderOrder({commit}, orderId){
-      const result = await axios.post(`http://localhost:3000/order/${orderId}/reorder/json`)
+      const result = await axios.post(`${process.env.VUE_APP_API_URL}/order/${orderId}/reorder/json`)
       commit('SET_ORDER', result.data)
       this.state.orders.push(result.data)
     },
     async writeReview({commit, dispatch}, data) {
-      const result = await axios.post(`http://localhost:3000/user/${data.user}/restaurant/${data.rest}/review/json`, 
+      const result = await axios.post(`${process.env.VUE_APP_API_URL}/user/${data.user}/restaurant/${data.rest}/review/json`, 
                                         {
                                           name: data.name,
                                           rating: data.rating
